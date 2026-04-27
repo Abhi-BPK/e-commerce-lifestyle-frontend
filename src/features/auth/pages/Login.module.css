@@ -1,0 +1,61 @@
+/* Full-viewport centered layout */
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+/* Auth card */
+.card {
+  background: var(--color-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 48px 40px 40px;
+  width: 100%;
+  max-width: 440px;
+}
+
+/* DOPPEY wordmark */
+.wordmark {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  /* Slight serif/display feel via tracking — no icon needed */
+}
+
+/* Page headings */
+.heading {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.subheading {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin-bottom: 28px;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .card {
+    padding: 36px 24px 32px;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+
+  .page {
+    align-items: flex-start;
+    padding: 0;
+  }
+}

@@ -1,0 +1,26 @@
+.claude/settings.json
+    This is the permissions file. It controls what Claude is and isn't allowed to do 
+    in your project. 
+    For example, allowing npm run * means Claude can run your scripts, but denying 
+    git push --force protects your repo from dangerous operations. 
+    Committed to Git so the whole team has the same guardrails.
+
+.claude/settings.local.json
+    Same as above but personal and gitignored. 
+    If you personally want to allow or block something that the rest of the team doesn't need,
+    it goes here.
+
+.claude/rules/components.md
+    Tells Claude specifically how to write React components in your project — destructure props,
+     use default exports, keep components short. 
+     This only governs component-related work, keeping it focused.
+
+.claude/rules/testing.md
+    Tells Claude your testing conventions — which library to use, where test files live, 
+    what to test. Without this, Claude might write tests in a completely different style than
+    your team expects.
+
+.claude/rules/git.md
+    Tells Claude your Git workflow — branch naming, commit message format, PR rules. 
+    This is useful when you ask Claude to help with commits or branch names so it stays 
+    consistent with your team's conventions.
