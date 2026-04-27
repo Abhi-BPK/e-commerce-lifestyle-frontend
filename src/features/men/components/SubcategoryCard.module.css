@@ -1,0 +1,98 @@
+/* SubcategoryCard — full-bleed image card with gradient text overlay */
+
+/* The card is a positioned container so we can layer image → overlay → text */
+.card {
+  position: relative;
+  display: block;            /* Link is inline by default; block fills the grid cell */
+  border-radius: var(--radius-card);
+  overflow: hidden;          /* Clips the image and overlay to the rounded corners */
+  aspect-ratio: 4 / 3;      /* Consistent height across the 3-column grid */
+  text-decoration: none;
+  cursor: pointer;
+
+  /* Subtle box shadow */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+
+  /* Smooth scale + shadow on hover */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+}
+
+/* Cover photo — stretched to fill the card */
+.image {
+  position: absolute;
+  inset: 0;                  /* top/right/bottom/left: 0 shorthand */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center; /* Show the upper part of the photo (face/torso) */
+  transition: transform 0.4s ease;
+}
+
+/* Zoom the image slightly on hover for a parallax feel */
+.card:hover .image {
+  transform: scale(1.06);
+}
+
+/* Gradient overlay — transparent at top, dark at bottom */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+}
+
+/* Text content positioned at the bottom of the card */
+.content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 20px 20px;
+  color: #fff;
+}
+
+.label {
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.description {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.cta {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.7);
+  padding-bottom: 2px;
+  letter-spacing: 0.03em;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.card:hover .cta {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ── Mobile: single column below 600 px ──────────────────────────────────── */
+@media (max-width: 600px) {
+  .card {
+    aspect-ratio: 16 / 9;   /* Wider ratio fits better on a narrow screen */
+  }
+}

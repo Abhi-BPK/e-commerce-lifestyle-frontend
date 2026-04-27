@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../hooks/useCart'
 import { CartItem } from '../components/CartItem'
 import { CartSummary } from '../components/CartSummary'
-import { ROUTES } from '../../../shared/utils/constants'
 import styles from './Cart.module.css'
 
 export default function Cart() {
@@ -28,7 +27,7 @@ export default function Cart() {
             <p className={styles.emptySub}>
               Add some products and they&apos;ll appear here.
             </p>
-            <Link to={ROUTES.PRODUCTS} className={styles.shopButton}>
+            <Link to="/men-clothing" className={styles.shopButton}>
               Continue shopping
             </Link>
           </div>
@@ -39,7 +38,7 @@ export default function Cart() {
               {items.map((item) => (
                 <CartItem key={item.id} item={item} />
               ))}
-              <Link to={ROUTES.PRODUCTS} className={styles.continueLink}>
+              <Link to="/men-clothing" className={styles.continueLink}>
                 ← Continue shopping
               </Link>
             </div>

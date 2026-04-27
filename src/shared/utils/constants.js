@@ -4,8 +4,7 @@ export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
   DASHBOARD: '/dashboard',
-  PRODUCTS: '/products',
-  PRODUCT_DETAIL: (id) => `/products/${id}`,
+  MEN_CLOTHING: '/men-clothing',
   CART: '/cart',
   ORDERS: '/orders',
   ORDER_DETAIL: (id) => `/orders/${id}`,
@@ -17,7 +16,9 @@ export const ROLES = {
   VENDOR: 'vendor',
 }
 
-export const CATEGORIES = ['All', 'Electronics', 'Clothing', 'Accessories', 'Home']
+// Men's clothing subcategory definitions — used by the landing page and listing page.
+// Imported directly from here so the data lives in one place (single source of truth).
+export { MEN_SUBCATEGORIES } from '../../features/men/data/menCategories'
 
 export const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest' },

@@ -1,0 +1,111 @@
+/* MenCategoryLanding — /men-clothing page styles */
+
+.page {
+  min-height: calc(100vh - 64px); /* 64px = Navbar height */
+  background: var(--color-bg);
+}
+
+/* ── Hero banner ─────────────────────────────────────────────────────────── */
+.hero {
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 64px 32px 56px;
+  text-align: center;
+}
+
+.heroInner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Small overline label, e.g. "Exclusively for Him" */
+.heroEyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 12px;
+}
+
+/* Main page heading */
+.heroTitle {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+  line-height: 1.05;
+}
+
+/* Subtitle below the heading */
+.heroSubtitle {
+  font-size: clamp(15px, 1.8vw, 18px);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Category grid section ───────────────────────────────────────────────── */
+.section {
+  padding: 56px 0 80px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.sectionTitle {
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+
+.sectionSubtitle {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  margin: 0 0 36px;
+}
+
+/*
+  3-column grid with equal-width columns.
+  auto-fill means it creates as many columns as fit — the minmax clamp
+  ensures each card is at least 280px wide so they wrap cleanly on tablets.
+*/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ── Responsive breakpoints ─────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  /* 2 columns on tablets */
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero {
+    padding: 48px 24px 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Single column on phones */
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero {
+    padding: 40px 16px 32px;
+  }
+}

@@ -1,0 +1,149 @@
+/* MenProductListing page — /men-clothing/:subcategory */
+
+.page {
+  min-height: calc(100vh - 64px);
+  background: var(--color-bg);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────────── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+
+.breadcrumbLink {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.breadcrumbLink:hover {
+  color: var(--color-text-primary);
+}
+
+.breadcrumbSep {
+  color: var(--color-text-muted);
+}
+
+.breadcrumbCurrent {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* ── Header row (title + sort) ──────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+
+.count {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Sort dropdown */
+.sortSelect {
+  height: 40px;
+  padding: 0 12px;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.sortSelect:focus {
+  border-color: var(--color-accent);
+}
+
+/* ── States ─────────────────────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+}
+
+.error {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--color-error, #e53e3e);
+  font-size: 15px;
+}
+
+.empty {
+  text-align: center;
+  padding: 80px 0;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 8px;
+}
+
+.emptySub {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ── Product grid ───────────────────────────────────────────────────────── */
+/*
+  4-column grid on large screens, stepping down to 2 on tablets and 1 on mobile.
+  The gap between cards is 24px on all axes.
+*/
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* ── Responsive breakpoints ─────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .container {
+    padding: 24px 16px 60px;
+  }
+}
+
+@media (max-width: 420px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

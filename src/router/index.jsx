@@ -10,7 +10,7 @@
 //   ProtectedLayout  — renders Navbar above all authenticated pages; also
 //                      guards against unauthenticated access
 //   Public routes    — /login, /signup (no Navbar)
-//   Protected routes — /products, /cart, /orders, /checkout, /dashboard
+//   Protected routes — /men-clothing, /cart, /orders, /checkout, /dashboard
 //
 // Every page is lazy-loaded (React.lazy + Suspense) so the initial bundle
 // only contains the shell — not every page.
@@ -34,12 +34,9 @@ import logger from '../logger/logger.service'
 // ── Lazy page imports ─────────────────────────────────────────────
 // Each import() creates a separate code-split chunk so pages are only
 // downloaded when first visited — keeps initial load fast.
-const Login    = lazy(() => import('../features/auth/pages/Login'))
-const Signup   = lazy(() => import('../features/auth/pages/Signup'))
+const Login     = lazy(() => import('../features/auth/pages/Login'))
+const Signup    = lazy(() => import('../features/auth/pages/Signup'))
 const Dashboard = lazy(() => import('../features/dashboard/pages/Dashboard'))
-
-const ProductListing = lazy(() => import('../features/products/pages/ProductListing'))
-const ProductDetail  = lazy(() => import('../features/products/pages/ProductDetail'))
 
 const Cart = lazy(() => import('../features/cart/pages/Cart'))
 
@@ -47,6 +44,11 @@ const OrderHistory = lazy(() => import('../features/orders/pages/OrderHistory'))
 const OrderDetail  = lazy(() => import('../features/orders/pages/OrderDetail'))
 
 const Checkout = lazy(() => import('../features/checkout/pages/Checkout'))
+
+// Men's Clothing section — lazy-loaded like all other pages
+const MenCategoryLanding = lazy(() => import('../features/men/pages/MenCategoryLanding'))
+const MenProductListing  = lazy(() => import('../features/men/pages/MenProductListing'))
+const MenProductDetail   = lazy(() => import('../features/men/pages/MenProductDetail'))
 
 // ── Route-change logger ───────────────────────────────────────────
 // Renders nothing — only logs navigation events as structured info entries
@@ -94,7 +96,7 @@ function ProtectedLayout() {
     <>
       <Navbar />
       <ErrorBoundary>
-        {/* Outlet renders the specific page (ProductListing, Cart, etc.) */}
+        {/* Outlet renders the specific page (MenCategoryLanding, Cart, etc.) */}
         <Outlet />
       </ErrorBoundary>
     </>
@@ -118,10 +120,10 @@ export const router = createBrowserRouter([
     // RootLayout wraps every route — auth context + catch-all error boundary
     element: <RootLayout />,
     children: [
-      // Redirect root "/" to the products listing (main page of the store)
+      // Redirect root "/" to the Men's Clothing landing page (home of the store)
       {
         index: true,
-        element: <Navigate to="/products" replace />,
+        element: <Navigate to="/men-clothing" replace />,
       },
 
       // ── Public routes (no Navbar) ───────────────────────────────
@@ -141,29 +143,33 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedLayout />,
         children: [
-          // Product pages
-          { path: '/products',     element: <Page component={ProductListing} /> },
-          { path: '/products/:id', element: <Page component={ProductDetail} /> },
+          // ── Men's Clothing section ──────────────────────────────
+          //   /men-clothing               → category landing (6 subcategory cards)
+          //   /men-clothing/:subcategory  → filtered product grid
+          //   /men-clothing/:subcategory/:id → product detail page
+          { path: '/men-clothing',                  element: <Page component={MenCategoryLanding} /> },
+          { path: '/men-clothing/:subcategory',     element: <Page component={MenProductListing} /> },
+          { path: '/men-clothing/:subcategory/:id', element: <Page component={MenProductDetail} /> },
 
           // Shopping cart
-          { path: '/cart',         element: <Page component={Cart} /> },
+          { path: '/cart',      element: <Page component={Cart} /> },
 
           // Order history + order detail
-          { path: '/orders',       element: <Page component={OrderHistory} /> },
-          { path: '/orders/:id',   element: <Page component={OrderDetail} /> },
+          { path: '/orders',    element: <Page component={OrderHistory} /> },
+          { path: '/orders/:id', element: <Page component={OrderDetail} /> },
 
           // Checkout flow
-          { path: '/checkout',     element: <Page component={Checkout} /> },
+          { path: '/checkout',  element: <Page component={Checkout} /> },
 
           // Dashboard (account page, reached via avatar button)
-          { path: '/dashboard',    element: <Page component={Dashboard} /> },
+          { path: '/dashboard', element: <Page component={Dashboard} /> },
         ],
       },
 
-      // Catch-all — redirect unknown paths to products (home of the store)
+      // Catch-all — redirect unknown paths to Men's Clothing landing page
       {
         path: '*',
-        element: <Navigate to="/products" replace />,
+        element: <Navigate to="/men-clothing" replace />,
       },
     ],
   },

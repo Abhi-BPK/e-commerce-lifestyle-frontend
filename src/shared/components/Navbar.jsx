@@ -28,19 +28,19 @@ export function Navbar() {
     <header className={styles.header} role="banner">
       <div className={styles.inner}>
         {/* Brand */}
-        <Link to={ROUTES.PRODUCTS} className={styles.wordmark} aria-label="DOPPEY home">
+        <Link to="/men-clothing" className={styles.wordmark} aria-label="DOPPEY home">
           DOPPEY
         </Link>
 
         {/* Main nav links */}
         <nav className={styles.nav} aria-label="Main navigation">
           <NavLink
-            to={ROUTES.PRODUCTS}
+            to="/men-clothing"
             className={({ isActive }) =>
               `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
             }
           >
-            Products
+            Men's Clothing
           </NavLink>
           <NavLink
             to={ROUTES.ORDERS}
