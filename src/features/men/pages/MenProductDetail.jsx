@@ -1,18 +1,24 @@
 // MenProductDetail — /men-clothing/:subcategory/:id
 //
-// Looks up the product by id from the local menProducts array.
-// Layout mirrors the existing ProductDetail page:
-//   Left column — large product image
-//   Right column — name, rating, price, description, quantity picker, CTA buttons
+// Loads a single product by id from the backend and renders its detail page.
+// "Add to Cart" and "Buy Now" both call useCart's addToCart, which now POSTs
+// to /api/cart and refreshes Redux from the server response — so the cart
+// badge in the Navbar updates automatically.
 //
-// "Add to Cart" and "Buy Now" both dispatch to the same Redux cartSlice
-// that the rest of the app uses — so the cart badge in the Navbar updates instantly.
+// Loading lifecycle:
+//   - On mount we set isLoading=true, kick off the fetch, and show a Spinner.
+//   - On success we store the product and render normally.
+//   - On 404 (interceptor throws status:404) we show "Product not found".
+//   - If the route param :id changes, the cancelled flag stops a stale
+//     response from overwriting fresh state.
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../cart/hooks/useCart'
-import { menProducts } from '../data/menProducts'
+import { getMenProductById } from '../services/products.service'
+import { Spinner } from '../../../shared/components/Spinner'
 import { MEN_SUBCATEGORIES, ROUTES } from '../../../shared/utils/constants'
+import logger from '../../../logger/logger.service'
 import styles from './MenProductDetail.module.css'
 
 // Renders a row of 5 stars (gold = filled, grey = empty)
@@ -37,25 +43,67 @@ export default function MenProductDetail() {
   const { addToCart } = useCart()
   const navigate = useNavigate()
 
-  // UI state — quantity selector and the brief "Added!" confirmation flash
+  // ── Async fetch state ────────────────────────────────────────────────────
+  const [product, setProduct]     = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError]         = useState(null)
+
+  // ── UI state — quantity + the brief "Added!" confirmation flash ──────────
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded]       = useState(false)
 
-  // Find the product in our mock data array (no async needed for local data)
-  const product = menProducts.find((p) => p.id === id)
+  // Linting note: the react-hooks/set-state-in-effect rule blocks
+  // synchronous setState calls in the effect body, so the loading/error
+  // resets happen inside the .then/.catch callbacks instead.
+  useEffect(() => {
+    let cancelled = false
+
+    getMenProductById(id)
+      .then((data) => {
+        if (cancelled) return
+        setProduct(data)
+        setError(null)
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        // err is normalized — { status, message, field, code }
+        setError(err)
+        setProduct(null)
+        setIsLoading(false)
+        logger.error('Failed to load product', err, { id })
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [id])
 
   // Find the label for this subcategory to show in the breadcrumb
   const categoryMeta  = MEN_SUBCATEGORIES.find((c) => c.slug === subcategory)
   const categoryLabel = categoryMeta?.label ?? subcategory
 
-  // ── Product not found ────────────────────────────────────────────────────
-  if (!product) {
+  // ── Loading state ────────────────────────────────────────────────────────
+  if (isLoading) {
     return (
       <main className={styles.page}>
         <div className={styles.container}>
-          <p className={styles.notFound}>Product not found.</p>
+          <Spinner.Page />
+        </div>
+      </main>
+    )
+  }
+
+  // ── Product not found / fetch failed ─────────────────────────────────────
+  if (error || !product) {
+    return (
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <p className={styles.notFound}>
+            {error?.status === 404 ? 'Product not found.' : 'Could not load product.'}
+          </p>
           <Link to="/men-clothing" className={styles.backLink}>
-            ← Back to Men's Clothing
+            ← Back to Men&apos;s Clothing
           </Link>
         </div>
       </main>
@@ -63,17 +111,19 @@ export default function MenProductDetail() {
   }
 
   // ── Cart actions ─────────────────────────────────────────────────────────
+  // addToCart is now async (it does an HTTP round-trip) — we don't await it
+  // here because the visual "Added!" flash works regardless of the network
+  // timing, and the Navbar badge updates as soon as Redux is refreshed.
 
   function handleAddToCart() {
     addToCart(product, quantity)
     setAdded(true)
-    // Reset button text after 1.8 s so the user can add again
     setTimeout(() => setAdded(false), 1800)
   }
 
   function handleBuyNow() {
     addToCart(product, quantity)
-    navigate(ROUTES.CART) // Go straight to the cart page
+    navigate(ROUTES.CART)
   }
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -84,7 +134,7 @@ export default function MenProductDetail() {
         {/* ── Breadcrumb ─────────────────────────────────────────────── */}
         <nav className={styles.breadcrumb} aria-label="breadcrumb">
           <Link to="/men-clothing" className={styles.breadcrumbLink}>
-            Men's Clothing
+            Men&apos;s Clothing
           </Link>
           <span className={styles.breadcrumbSep}>›</span>
           <Link to={`/men-clothing/${subcategory}`} className={styles.breadcrumbLink}>
@@ -178,10 +228,6 @@ export default function MenProductDetail() {
             {/* CTA buttons — hidden for out-of-stock items */}
             {product.inStock ? (
               <div className={styles.actions}>
-                {/*
-                  addButtonSuccess class turns the button green momentarily
-                  to give the user visual feedback that the item was added.
-                */}
                 <button
                   className={`${styles.addButton} ${added ? styles.addButtonSuccess : ''}`}
                   onClick={handleAddToCart}

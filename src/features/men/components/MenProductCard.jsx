@@ -24,7 +24,7 @@ function StarRating({ rating }) {
 
 /**
  * @param {Object} props
- * @param {Object} props.product - a men's product object from menProducts.js
+ * @param {Object} props.product - a ProductDto returned by GET /api/products/men
  */
 export function MenProductCard({ product }) {
   const { addToCart } = useCart()

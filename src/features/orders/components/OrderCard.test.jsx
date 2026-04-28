@@ -30,12 +30,15 @@ const mockOrder = {
       image: 'https://picsum.photos/seed/p2/200/250',
     },
   ],
+  // Matches the backend ShippingAddressDto (firstName + lastName + country)
   shippingAddress: {
-    name: 'Jane Doe',
+    firstName: 'Jane',
+    lastName: 'Doe',
     line1: '123 Main St',
     city: 'New York',
     state: 'NY',
     zip: '10001',
+    country: 'India',
   },
 }
 

@@ -1,12 +1,23 @@
-// Custom hook to fetch and filter men's clothing products.
-// Mirrors the pattern in useProducts.js — simulates an async data load
-// with a short artificial delay, then filters and sorts locally.
-// In a real app, you'd replace the mock data import with an Axios call.
+// useMenProducts — fetches Men's-Clothing products from the backend
+// and applies client-side sorting.
+//
+// Why client-side sort?
+//   The backend filters by subcategory (the `?subcategory=...` query param)
+//   but doesn't expose a sort option. Sorting is cheap on the page-sized
+//   slices we get back, and keeping it local means changing the dropdown
+//   doesn't trigger a network round-trip.
+//
+// Lifecycle:
+//   1. Component mounts → effect runs → fetch starts → isLoading=true.
+//   2. Fetch resolves → setProducts(sorted) → isLoading=false.
+//   3. If subcategory changes mid-flight, the `cancelled` flag stops us
+//      from writing the stale response into state.
 
 import { useState, useEffect } from 'react'
-import { menProducts } from '../data/menProducts'
+import { getMenProducts } from '../services/products.service'
+import logger from '../../../logger/logger.service'
 
-// Sort the products array based on the selected sort option.
+// Sorts the products array based on the selected sort option.
 // Returns a new sorted array without mutating the original.
 function sortProducts(products, sortBy) {
   const copy = [...products]
@@ -19,50 +30,61 @@ function sortProducts(products, sortBy) {
       return copy.sort((a, b) => b.reviewCount - a.reviewCount)
     case 'newest':
     default:
-      // menProducts array order already represents "newest first"
+      // Backend returns newest-first by default — leave the order alone.
       return copy
   }
 }
 
 /**
- * useMenProducts — filters and sorts the men's product catalog.
+ * useMenProducts — fetches and sorts the men's product catalog.
  *
  * @param {Object} params
- * @param {string} params.subcategory - slug like 'formal', 'casual', etc.
- *                                      Pass null / undefined to get all products.
- * @param {string} params.sortBy      - one of the SORT_OPTIONS values
- * @returns {{ products: Array, isLoading: boolean, error: string|null }}
+ * @param {string|null} params.subcategory  slug like 'formal', 'casual', etc.
+ *                                          Pass null/undefined for everything.
+ * @param {string} params.sortBy            one of the SORT_OPTIONS values.
+ * @returns {{ products: Array, isLoading: boolean, error: Object|null }}
  */
 export function useMenProducts({ subcategory = null, sortBy = 'newest' } = {}) {
-  const [products, setProducts] = useState([])
+  // Raw list from the backend (unsorted) — we sort separately so a sortBy
+  // change doesn't refetch.
+  const [rawProducts, setRawProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // Fetch whenever the subcategory changes (NOT on sortBy change).
+  //
+  // Note on linting: the react-hooks/set-state-in-effect rule blocks
+  // calling setState synchronously in the effect body. So we don't toggle
+  // isLoading=true here — every setState call lives inside the .then/.catch
+  // callbacks. Initial state is already isLoading=true; on subsequent
+  // subcategory changes the previous list stays visible for the brief
+  // moment until the new fetch resolves.
   useEffect(() => {
-    let cancelled = false // prevents state update if component unmounts mid-fetch
+    let cancelled = false
 
-    // Simulate network delay (same 400ms pattern as the existing products service).
-    // All setState calls are inside the callback — not synchronously in the effect body —
-    // to satisfy the react-hooks/set-state-in-effect lint rule.
-    const timer = setTimeout(() => {
-      if (cancelled) return
+    getMenProducts(subcategory)
+      .then((data) => {
+        if (cancelled) return
+        setRawProducts(data)
+        setError(null)
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        // err is the normalized error from the response interceptor
+        setError(err)
+        setRawProducts([])
+        setIsLoading(false)
+        logger.error('Failed to load men products', err, { subcategory })
+      })
 
-      // Filter by subcategory slug when one is provided
-      const filtered = subcategory
-        ? menProducts.filter((p) => p.subcategory === subcategory)
-        : menProducts
-
-      setProducts(sortProducts(filtered, sortBy))
-      setError(null)
-      setIsLoading(false)
-    }, 400)
-
-    // Cleanup: cancel the timer if subcategory or sortBy changes before it fires
     return () => {
       cancelled = true
-      clearTimeout(timer)
     }
-  }, [subcategory, sortBy]) // re-run whenever filter or sort changes
+  }, [subcategory])
+
+  // Sorting happens AFTER fetch — local-only, no network.
+  const products = sortProducts(rawProducts, sortBy)
 
   return { products, isLoading, error }
 }

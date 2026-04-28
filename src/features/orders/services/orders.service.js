@@ -1,27 +1,33 @@
-// Mock orders service — swap with real Axios calls when backend is ready.
+// orders.service — talks to the per-user Orders endpoints.
+//
+// All three endpoints require a JWT (the request interceptor adds the
+// Authorization header automatically). Backend wraps GET responses in
+// `{ orders: [...] }` and `{ order: {...} }` envelopes — we unwrap them
+// here so callers receive a plain array / object.
+//
+// Errors bubble out as the normalized shape from the response interceptor.
 
-import { MOCK_ORDERS } from '../data/mockOrders'
+import api from '../../../api/axios.instance'
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms))
-
+// GET /api/orders → { orders: OrderDto[] }
 export async function getOrders() {
-  await delay(500)
-  return [...MOCK_ORDERS]
+  const response = await api.get('/orders')
+  return response.data.orders
 }
 
+// GET /api/orders/{id} → { order: OrderDto }
 export async function getOrderById(id) {
-  await delay(300)
-  return MOCK_ORDERS.find((o) => o.id === id) ?? null
+  const response = await api.get(`/orders/${encodeURIComponent(id)}`)
+  return response.data.order
 }
 
-// Called after checkout; in production this posts to /api/orders
+// POST /api/orders → OrderDto
+//
+// Body shape (PlaceOrderRequest):
+//   { items: OrderItemDto[], subtotal, shipping, tax, total, shippingAddress }
+// The backend persists the order and the items snapshot, but does NOT clear
+// the cart — the caller (usePlaceOrder) handles that explicitly.
 export async function placeOrder(orderData) {
-  await delay(800)
-  const newOrder = {
-    id: `ORD-${Date.now()}`,
-    date: new Date().toISOString(),
-    status: 'processing',
-    ...orderData,
-  }
-  return newOrder
+  const response = await api.post('/orders', orderData)
+  return response.data
 }

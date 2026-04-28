@@ -7,9 +7,12 @@ export function useOrderHistory() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // setState calls live inside the .then/.catch/.finally callbacks (not in
+  // the effect body) to satisfy the react-hooks/set-state-in-effect rule.
+  // Initial state is already isLoading=true so the first paint shows a
+  // loading state without us having to set it again here.
   useEffect(() => {
     let cancelled = false
-    setIsLoading(true)
 
     getOrders()
       .then((data) => {

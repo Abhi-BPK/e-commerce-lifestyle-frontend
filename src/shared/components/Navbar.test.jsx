@@ -34,9 +34,11 @@ describe('Navbar', () => {
     expect(screen.getByText('DOPPEY')).toBeInTheDocument()
   })
 
-  it('renders the Products nav link', () => {
+  it('renders the Men\'s Clothing nav link', () => {
+    // Navbar.jsx line 43 renders the catalog link as "Men's Clothing"
+    // (the only product category currently exposed to shoppers).
     renderNavbar()
-    expect(screen.getByRole('link', { name: /^products$/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /men's clothing/i })).toBeInTheDocument()
   })
 
   it('renders the Orders nav link', () => {
@@ -56,12 +58,13 @@ describe('Navbar', () => {
   })
 
   it('shows the correct total cart count badge', () => {
+    // Cart items use the flat backend CartItemDto shape that the slice now
+    // mirrors — selectCartCount reduces over `quantity` so 3 + 2 = 5.
     const cartItems = [
-      { id: 'p1', product: { id: 'p1', price: 10 }, quantity: 3 },
-      { id: 'p2', product: { id: 'p2', price: 20 }, quantity: 2 },
+      { id: 1, productId: 'p1', name: 'A', price: 10, image: '', quantity: 3 },
+      { id: 2, productId: 'p2', name: 'B', price: 20, image: '', quantity: 2 },
     ]
     renderNavbar({ cartItems })
-    // Total count: 3 + 2 = 5
     expect(screen.getByText('5')).toBeInTheDocument()
   })
 

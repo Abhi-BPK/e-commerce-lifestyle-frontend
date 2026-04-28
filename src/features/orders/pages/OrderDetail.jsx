@@ -24,13 +24,23 @@ export default function OrderDetail() {
   const [order, setOrder] = useState(navState?.order ?? null)
   const [isLoading, setIsLoading] = useState(!navState?.order)
 
+  // setState calls live inside the .then callback — keeping the effect body
+  // free of synchronous setState satisfies react-hooks/set-state-in-effect.
   useEffect(() => {
     if (navState?.order) return
     let cancelled = false
-    setIsLoading(true)
-    getOrderById(id).then((data) => {
-      if (!cancelled) { setOrder(data); setIsLoading(false) }
-    })
+    getOrderById(id)
+      .then((data) => {
+        if (!cancelled) {
+          setOrder(data)
+          setIsLoading(false)
+        }
+      })
+      .catch(() => {
+        // On error we still hide the spinner so the "Order not found"
+        // fallback can render instead of a perpetual loading state.
+        if (!cancelled) setIsLoading(false)
+      })
     return () => { cancelled = true }
   }, [id, navState?.order])
 
@@ -109,9 +119,13 @@ export default function OrderDetail() {
 
             <section className={styles.addressCard}>
               <h2 className={styles.sectionTitle}>Shipping address</h2>
-              <p>{order.shippingAddress.name}</p>
+              {/* Backend's ShippingAddressDto stores firstName + lastName
+                  separately rather than a combined `name`, so we join them
+                  for display. country is shown when present. */}
+              <p>{order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
               <p>{order.shippingAddress.line1}</p>
               <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}</p>
+              {order.shippingAddress.country && <p>{order.shippingAddress.country}</p>}
             </section>
           </aside>
         </div>

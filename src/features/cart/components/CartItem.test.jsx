@@ -1,22 +1,37 @@
-// Tests for CartItem — verifies that item details render and that quantity
-// controls dispatch the correct Redux actions.
+// Tests for CartItem — verifies that cart-row details render and that the
+// quantity/remove buttons call the right backend service functions with the
+// right cart-row id (NOT the productId).
+//
+// We mock cart.service so the tests stay fast and don't need a real network.
+// The mock captures call args so we can assert against them.
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { screen, fireEvent } from '@testing-library/react'
 import { renderWithProviders } from '../../../test/testUtils'
 import { CartItem } from './CartItem'
 
-// ── Fixtures ──────────────────────────────────────────────────────
+// ── Mock the cart service ────────────────────────────────────────────────
+// Every call returns a resolved promise so useCart's async chain doesn't
+// blow up; we just want to know that the right function was called with the
+// right arguments.
+vi.mock('../services/cart.service', () => ({
+  getCart:    vi.fn(() => Promise.resolve([])),
+  addItem:    vi.fn(() => Promise.resolve()),
+  updateItem: vi.fn(() => Promise.resolve()),
+  removeItem: vi.fn(() => Promise.resolve()),
+  clearCart:  vi.fn(() => Promise.resolve()),
+}))
+import * as cartApi from '../services/cart.service'
+
+// ── Fixture (flat CartItemDto shape) ─────────────────────────────────────
 const mockItem = {
-  id: 'p1',
-  product: {
-    id: 'p1',
-    name: 'Blue Sneakers',
-    price: 89.99,
-    image: 'https://picsum.photos/seed/p1/200/250',
-    category: 'Footwear',
-  },
+  id: 42,                // cart row PK — what the buttons must pass to PUT/DELETE
+  productId: 'p1',
+  name: 'Blue Sneakers',
+  price: 89.99,
+  image: 'https://picsum.photos/seed/p1/200/250',
   quantity: 2,
+  addedAt: '2026-04-29T10:00:00Z',
 }
 
 function renderItem(item = mockItem) {
@@ -24,6 +39,10 @@ function renderItem(item = mockItem) {
     preloadedState: { cart: { items: [item] } },
   })
 }
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 // ── Tests ─────────────────────────────────────────────────────────
 describe('CartItem', () => {
@@ -33,7 +52,6 @@ describe('CartItem', () => {
   })
 
   it('renders the unit price with "each" suffix', () => {
-    // Component renders "$89.99 each" in the unit price paragraph
     renderItem()
     expect(screen.getByText(/\$89\.99 each/i)).toBeInTheDocument()
   })
@@ -54,27 +72,22 @@ describe('CartItem', () => {
     expect(screen.getByRole('img', { name: 'Blue Sneakers' })).toBeInTheDocument()
   })
 
-  it('decrease button decrements quantity in the store', () => {
-    const { store } = renderItem()
-    const decreaseBtn = screen.getByRole('button', { name: /decrease quantity/i })
-    fireEvent.click(decreaseBtn)
-    const items = store.getState().cart.items
-    // Qty was 2 → should become 1
-    expect(items[0]?.quantity).toBe(1)
+  it('decrease button calls updateItem with the cart row id and qty-1', () => {
+    renderItem()
+    fireEvent.click(screen.getByRole('button', { name: /decrease quantity/i }))
+    // qty was 2 → expect updateItem(42, 1)
+    expect(cartApi.updateItem).toHaveBeenCalledWith(42, 1)
   })
 
-  it('increase button increments quantity in the store', () => {
-    const { store } = renderItem()
-    const increaseBtn = screen.getByRole('button', { name: /increase quantity/i })
-    fireEvent.click(increaseBtn)
-    const items = store.getState().cart.items
-    expect(items[0]?.quantity).toBe(3)
+  it('increase button calls updateItem with the cart row id and qty+1', () => {
+    renderItem()
+    fireEvent.click(screen.getByRole('button', { name: /increase quantity/i }))
+    expect(cartApi.updateItem).toHaveBeenCalledWith(42, 3)
   })
 
-  it('remove button removes the item from the store', () => {
-    const { store } = renderItem()
-    const removeBtn = screen.getByRole('button', { name: /remove blue sneakers from cart/i })
-    fireEvent.click(removeBtn)
-    expect(store.getState().cart.items).toHaveLength(0)
+  it('remove button calls removeItem with the cart row id', () => {
+    renderItem()
+    fireEvent.click(screen.getByRole('button', { name: /remove blue sneakers from cart/i }))
+    expect(cartApi.removeItem).toHaveBeenCalledWith(42)
   })
 })

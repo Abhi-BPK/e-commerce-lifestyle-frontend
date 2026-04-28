@@ -7,6 +7,8 @@ import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/auth.service'
 import { setCredentials } from '../../../store/slices/authSlice'
+import { setCart } from '../../../store/slices/cartSlice'
+import { getCart } from '../../cart/services/cart.service'
 import { ROUTES } from '../../../shared/utils/constants'
 import logger from '../../../logger/logger.service'
 
@@ -48,6 +50,16 @@ export function useLogin() {
     // Update Redux client state
     dispatch(setCredentials({ token, user }))
     logger.info('Login successful', { email: user.email, role: user.role })
+
+    // Pull the user's persistent cart from the backend so the Navbar badge
+    // and the /cart page reflect what's already saved server-side. We start
+    // navigation immediately — the cart hydration runs in the background.
+    // If it fails (network blip / stale token) we just log; the 401 handler
+    // would have logged the user out anyway.
+    getCart()
+      .then((items) => dispatch(setCart(items)))
+      .catch((err) => logger.warn('Cart hydration on login failed', err))
+
     navigate(ROUTES.DASHBOARD)
   }, [state, dispatch, navigate])
 
