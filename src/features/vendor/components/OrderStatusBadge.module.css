@@ -1,0 +1,40 @@
+/* Shared pill base */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Amber — Pending */
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Blue — Processing */
+.processing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Purple — Shipped */
+.shipped {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+/* Green — Delivered */
+.delivered {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Red — Cancelled */
+.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}

@@ -9,7 +9,7 @@ import { login } from '../services/auth.service'
 import { setCredentials } from '../../../store/slices/authSlice'
 import { setCart } from '../../../store/slices/cartSlice'
 import { getCart } from '../../cart/services/cart.service'
-import { ROUTES } from '../../../shared/utils/constants'
+import { ROUTES, VENDOR_ROUTES, ROLES } from '../../../shared/utils/constants'
 import logger from '../../../logger/logger.service'
 
 export function useLogin() {
@@ -60,7 +60,9 @@ export function useLogin() {
       .then((items) => dispatch(setCart(items)))
       .catch((err) => logger.warn('Cart hydration on login failed', err))
 
-    navigate(ROUTES.DASHBOARD)
+    // Case-insensitive comparison so "Vendor", "vendor", "VENDOR" all work
+    const isVendor = user.role?.toLowerCase() === ROLES.VENDOR
+    navigate(isVendor ? VENDOR_ROUTES.DASHBOARD : ROUTES.DASHBOARD)
   }, [state, dispatch, navigate])
 
   return { state, formAction, isPending }

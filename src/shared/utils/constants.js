@@ -11,6 +11,16 @@ export const ROUTES = {
   CHECKOUT: '/checkout',
 }
 
+// Vendor portal route constants — kept separate so the vendor feature
+// can be removed cleanly without touching the user-facing ROUTES object.
+export const VENDOR_ROUTES = {
+  DASHBOARD:  '/vendor/dashboard',
+  PRODUCTS:   '/vendor/products',
+  INVENTORY:  '/vendor/inventory',
+  ORDERS:     '/vendor/orders',
+  ANALYTICS:  '/vendor/analytics',
+}
+
 export const ROLES = {
   USER: 'user',
   VENDOR: 'vendor',

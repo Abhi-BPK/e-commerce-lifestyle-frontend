@@ -1,0 +1,130 @@
+.wrap {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* Low-stock warning banner at top */
+.banner {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid #fde68a;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.filterBtn {
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.filterBtn:hover { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+.filterBtnActive { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+
+.tableWrap { overflow-x: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr { background: var(--color-bg-surface); }
+
+.table th {
+  padding: 11px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.table tbody tr:nth-child(even) { background: var(--color-bg-surface); }
+.table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  vertical-align: middle;
+}
+
+/* Low-stock row highlight */
+.rowLow { background: #fffbeb !important; }
+
+.productName { font-weight: 600; color: var(--color-text-primary) !important; }
+.date        { color: var(--color-text-muted) !important; font-size: 12px; }
+
+/* Inline editable stock value */
+.stockBtn {
+  background: none;
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.stockBtn:hover  { background: var(--color-bg-input); }
+.stockLow        { color: #92400e; border-color: #fde68a; }
+
+.stockInput {
+  width: 64px;
+  padding: 3px 8px;
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+}
+
+/* Status pills */
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Matches status strings: In_Stock, Low_Stock, Out_of_Stock */
+.status_In_Stock     { background: #d1fae5; color: #065f46; }
+.status_Low_Stock    { background: #fef3c7; color: #92400e; }
+.status_Out_of_Stock { background: #fee2e2; color: #991b1b; }
+
+.warnDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}

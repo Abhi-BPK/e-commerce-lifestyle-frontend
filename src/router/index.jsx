@@ -6,11 +6,13 @@
 // React Router v7 config using createBrowserRouter.
 //
 // Architecture:
-//   RootLayout       — auth context + error boundary for the whole tree
-//   ProtectedLayout  — renders Navbar above all authenticated pages; also
-//                      guards against unauthenticated access
-//   Public routes    — /login, /signup (no Navbar)
-//   Protected routes — /men-clothing, /cart, /orders, /checkout, /dashboard
+//   RootLayout            — auth context + error boundary for the whole tree
+//   ProtectedLayout       — renders Navbar above all authenticated store pages;
+//                           guards against unauthenticated access
+//   VendorProtectedLayout — guards vendor routes; redirects non-vendors to /dashboard
+//   Public routes         — /login, /signup (no Navbar)
+//   Protected routes      — /men-clothing, /cart, /orders, /checkout, /dashboard
+//   Vendor routes         — /vendor/* (VendorDashboard layout + nested pages)
 //
 // Every page is lazy-loaded (React.lazy + Suspense) so the initial bundle
 // only contains the shell — not every page.
@@ -28,7 +30,8 @@ import { AuthProvider } from '../features/auth/AuthContext'
 import { ErrorBoundary } from '../shared/components/ErrorBoundary'
 import { Spinner } from '../shared/components/Spinner'
 import { Navbar } from '../shared/components/Navbar'
-import { selectIsAuthenticated } from '../store/slices/authSlice'
+import { selectIsAuthenticated, selectCurrentUser } from '../store/slices/authSlice'
+import { ROLES } from '../shared/utils/constants'
 import logger from '../logger/logger.service'
 
 // ── Lazy page imports ─────────────────────────────────────────────
@@ -49,6 +52,15 @@ const Checkout = lazy(() => import('../features/checkout/pages/Checkout'))
 const MenCategoryLanding = lazy(() => import('../features/men/pages/MenCategoryLanding'))
 const MenProductListing  = lazy(() => import('../features/men/pages/MenProductListing'))
 const MenProductDetail   = lazy(() => import('../features/men/pages/MenProductDetail'))
+
+// ── Vendor portal pages (lazy-loaded) ────────────────────────────
+// Loaded only when a vendor visits /vendor/* — zero impact on the
+// bundle size for regular shoppers.
+const VendorDashboard     = lazy(() => import('../features/vendor/pages/VendorDashboard'))
+const Analytics           = lazy(() => import('../features/vendor/pages/Analytics'))
+const ProductManagement   = lazy(() => import('../features/vendor/pages/ProductManagement'))
+const InventoryManagement = lazy(() => import('../features/vendor/pages/InventoryManagement'))
+const OrderManagement     = lazy(() => import('../features/vendor/pages/OrderManagement'))
 
 // ── Route-change logger ───────────────────────────────────────────
 // Renders nothing — only logs navigation events as structured info entries
@@ -101,6 +113,22 @@ function ProtectedLayout() {
       </ErrorBoundary>
     </>
   )
+}
+
+// ── Vendor protected layout ───────────────────────────────────────
+// Guards all /vendor/* routes.
+//   - Not logged in at all → /login
+//   - Logged in but role is not "vendor" → /dashboard (store home)
+// VendorDashboard (the sidebar+navbar layout) is a child of this guard,
+// so the guard itself renders no UI — just the Outlet or a redirect.
+function VendorProtectedLayout() {
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const user            = useSelector(selectCurrentUser)
+
+  if (!isAuthenticated)                                  return <Navigate to="/login"     replace />
+  if (user?.role?.toLowerCase() !== ROLES.VENDOR)       return <Navigate to="/dashboard" replace />
+
+  return <Outlet />
 }
 
 // ── Suspense wrapper ──────────────────────────────────────────────
@@ -163,6 +191,33 @@ export const router = createBrowserRouter([
 
           // Dashboard (account page, reached via avatar button)
           { path: '/dashboard', element: <Page component={Dashboard} /> },
+        ],
+      },
+
+      // ── Vendor portal routes ────────────────────────────────────
+      // Completely separate from the store UI — uses its own layout
+      // (VendorDashboard = sidebar + top bar + Outlet).
+      // VendorProtectedLayout ensures only role:"vendor" users can enter.
+      {
+        path: '/vendor',
+        element: <VendorProtectedLayout />,
+        children: [
+          // /vendor → bounce directly to the analytics overview
+          { index: true, element: <Navigate to="/vendor/dashboard" replace /> },
+
+          // Pathless layout route — VendorDashboard renders sidebar + navbar
+          // and its <Outlet> renders whichever /vendor/* child is active.
+          {
+            element: <Page component={VendorDashboard} />,
+            children: [
+              // /vendor/dashboard  → Analytics overview (same component as /vendor/analytics)
+              { path: 'dashboard',  element: <Page component={Analytics} /> },
+              { path: 'products',   element: <Page component={ProductManagement} /> },
+              { path: 'inventory',  element: <Page component={InventoryManagement} /> },
+              { path: 'orders',     element: <Page component={OrderManagement} /> },
+              { path: 'analytics',  element: <Page component={Analytics} /> },
+            ],
+          },
         ],
       },
 

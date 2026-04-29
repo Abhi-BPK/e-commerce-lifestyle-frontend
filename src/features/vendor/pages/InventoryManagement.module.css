@@ -1,0 +1,9 @@
+.page {
+  /* InventoryTable fills the content area */
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 14px;
+  padding: 24px;
+}

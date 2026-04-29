@@ -1,0 +1,9 @@
+.page {
+  /* The ProductTable fills the full content area */
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 14px;
+  padding: 24px;
+}
