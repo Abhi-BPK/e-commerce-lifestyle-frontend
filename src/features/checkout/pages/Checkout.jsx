@@ -46,20 +46,27 @@ export default function Checkout() {
             <h2 className={styles.summaryTitle}>Order Summary</h2>
 
             <div className={styles.itemsList}>
+              {/*
+                Cart items come back from the backend as FLAT CartItemDto rows
+                ({ id, productId, name, price, image, quantity, addedAt }) —
+                there is no nested `item.product`. Reading item.product.X here
+                used to throw "cannot read properties of undefined" and the
+                error boundary swallowed it, making the page render blank.
+              */}
               {items.map((item) => (
                 <div key={item.id} className={styles.item}>
                   <img
-                    src={item.product.image}
-                    alt={item.product.name}
+                    src={item.image}
+                    alt={item.name}
                     className={styles.thumb}
                     loading="lazy"
                   />
                   <div className={styles.itemInfo}>
-                    <p className={styles.itemName}>{item.product.name}</p>
+                    <p className={styles.itemName}>{item.name}</p>
                     <p className={styles.itemQty}>Qty: {item.quantity}</p>
                   </div>
                   <p className={styles.itemPrice}>
-                    ${(item.product.price * item.quantity).toFixed(2)}
+                    ${(item.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
               ))}
