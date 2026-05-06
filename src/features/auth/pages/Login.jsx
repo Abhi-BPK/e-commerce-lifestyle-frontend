@@ -7,6 +7,7 @@
 
 import { useLogin } from '../hooks/useLogin'
 import { LoginForm } from '../components/LoginForm'
+import { OidcButtons } from '../components/OidcButtons'
 import styles from './Login.module.css'
 
 export default function Login() {
@@ -27,6 +28,9 @@ export default function Login() {
           state={state}
           isPending={isPending}
         />
+
+        {/* Social login buttons — self-contained, no interaction with useLogin state */}
+        <OidcButtons />
       </div>
     </main>
   )

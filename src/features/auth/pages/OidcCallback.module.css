@@ -1,0 +1,55 @@
+/* OidcCallback.module.css
+   Styles the loading/error screen shown while the OAuth code is being exchanged.
+   Users typically see this for under 2 seconds, so the design is intentionally
+   minimal — just centered content on the page background. */
+
+/* Full-viewport container — vertically and horizontally centered */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 16px;
+  background: var(--color-bg-surface);
+}
+
+/* Message shown below the spinner during loading */
+.message {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+/* Error state — title */
+.errorTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Error state — detail message in a tinted box */
+.errorMessage {
+  font-size: 14px;
+  color: var(--color-error);
+  background: rgba(255, 59, 48, 0.06);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  line-height: 1.4;
+  text-align: center;
+  max-width: 360px;
+}
+
+/* "Back to sign in" link below the error */
+.retryLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity var(--transition-fast);
+}
+
+.retryLink:hover {
+  opacity: 0.65;
+}

@@ -37,8 +37,9 @@ import logger from '../logger/logger.service'
 // ── Lazy page imports ─────────────────────────────────────────────
 // Each import() creates a separate code-split chunk so pages are only
 // downloaded when first visited — keeps initial load fast.
-const Login     = lazy(() => import('../features/auth/pages/Login'))
-const Signup    = lazy(() => import('../features/auth/pages/Signup'))
+const Login        = lazy(() => import('../features/auth/pages/Login'))
+const Signup       = lazy(() => import('../features/auth/pages/Signup'))
+const OidcCallback = lazy(() => import('../features/auth/pages/OidcCallback'))
 const Dashboard = lazy(() => import('../features/dashboard/pages/Dashboard'))
 
 const Cart = lazy(() => import('../features/cart/pages/Cart'))
@@ -164,6 +165,16 @@ export const router = createBrowserRouter([
       {
         path: '/signup',
         element: <Page component={Signup} />,
+      },
+
+      // ── OIDC callback routes (public — no auth guard, no Navbar) ───────────
+      // After the user authenticates with Google or GitHub, the provider redirects
+      // back here with ?code=...&state=... in the URL. These routes must be public
+      // because the user has no token yet when they land here.
+      // The :provider param is 'google' or 'github' — OidcCallback reads it via useParams().
+      {
+        path: '/auth/callback/:provider',
+        element: <Page component={OidcCallback} />,
       },
 
       // ── Protected routes (Navbar shown) ────────────────────────

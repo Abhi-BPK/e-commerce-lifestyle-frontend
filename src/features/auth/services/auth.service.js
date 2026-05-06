@@ -35,3 +35,30 @@ export async function signup(data) {
   const response = await api.post('/auth/signup', data)
   return response.data
 }
+
+// ── loginWithGoogle ───────────────────────────────────────────────────────────
+// POST /api/auth/oidc/google  →  { token, user }
+//
+// The backend receives the authorization code and exchanges it with Google's
+// token endpoint on our behalf (server-to-server). We never touch Google's
+// tokens directly — we only pass the code and PKCE verifier.
+//
+// codeVerifier: required by Google when PKCE was used in the authorization request.
+//   We generated it in initiateGoogleLogin() and stored it in sessionStorage.
+// redirectUri: must exactly match what was used in the authorization URL —
+//   Google validates this server-side.
+export async function loginWithGoogle({ code, redirectUri, codeVerifier }) {
+  const response = await api.post('/auth/oidc/google', { code, redirectUri, codeVerifier })
+  return response.data
+}
+
+// ── loginWithGithub ───────────────────────────────────────────────────────────
+// POST /api/auth/oidc/github  →  { token, user }
+//
+// Same pattern as loginWithGoogle but without PKCE — GitHub's OAuth App flow
+// does not support it. The backend exchanges the code with GitHub, fetches the
+// user profile (and email if hidden), then returns a JWT.
+export async function loginWithGithub({ code, redirectUri }) {
+  const response = await api.post('/auth/oidc/github', { code, redirectUri })
+  return response.data
+}
